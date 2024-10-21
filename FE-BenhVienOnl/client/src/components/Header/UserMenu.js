@@ -2,18 +2,18 @@ import React from "react";
 import { Menu, Dropdown, Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { clearError, logout } from "../../Redux/User/userSlice"; 
-import { useNavigate } from "react-router-dom"; 
+import { clearError, logout } from "../../Redux/User/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const UserMenu = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.user);
 
   const handleLogout = () => {
-    dispatch(clearError()); 
+    dispatch(clearError());
     dispatch(logout());
-    navigate("/"); 
+    navigate("/");
   };
 
   const handleProfile = () => {
@@ -46,6 +46,9 @@ const UserMenu = () => {
 
   return (
     <div className="flex items-center">
+      {userInfo && (
+        <span className="mr-2 text-white font-bold">{userInfo.username}</span>
+      )}
       <Dropdown
         overlay={userInfo ? loggedInMenu : loggedOutMenu}
         placement="bottomRight"
@@ -57,11 +60,6 @@ const UserMenu = () => {
           className="cursor-pointer"
         />
       </Dropdown>
-      {userInfo && (
-        <span className="ml-2 text-red-200 bold">
-          {userInfo.username} 
-        </span>
-      )}
     </div>
   );
 };

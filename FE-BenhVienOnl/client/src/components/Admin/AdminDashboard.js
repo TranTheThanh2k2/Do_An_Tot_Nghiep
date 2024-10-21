@@ -1,24 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { Layout, Menu } from "antd";
 import {
   UserOutlined,
   VideoCameraOutlined,
   UploadOutlined,
   DashboardOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  IdcardOutlined,
+  ProfileOutlined,
 } from "@ant-design/icons";
 import { Link, Outlet } from "react-router-dom";
-import logo from "../../img/logo192.png";
+import logo from "../../img/logo.jfif";
 import UserMenu from "../Header/UserMenu";
 
-const { Sider, Content } = Layout;
+const { Sider, Content, Header } = Layout;
 
 const AdminDashboard = () => {
+  const [collapsed, setCollapsed] = useState(false); // Quản lý trạng thái mở/đóng của Sider
+
   // Cấu hình các items cho Menu theo format mới của Ant Design
   const menuItems = [
     {
       key: "1",
       icon: <DashboardOutlined />,
-      label: <Link to="/adminDashboard">Bảng Điều Khiển</Link>,
+      label: <Link to="/adminDashboard/control">Bảng Điều Khiển</Link>,
     },
     {
       key: "2",
@@ -27,12 +33,12 @@ const AdminDashboard = () => {
     },
     {
       key: "3",
-      icon: <VideoCameraOutlined />,
+      icon: <IdcardOutlined />,
       label: <Link to="/adminDashboard/doctor">Quản Lý Bác Sĩ</Link>,
     },
     {
       key: "4",
-      icon: <UploadOutlined />,
+      icon: <ProfileOutlined />,
       label: "Quản Lý Ca Khám Bệnh",
     },
     {
@@ -45,23 +51,53 @@ const AdminDashboard = () => {
   return (
     <Layout className="min-h-screen">
       {/* Sidebar */}
-      <Sider trigger={null} collapsible className="bg-white" width={250}>
+      <Sider
+        trigger={null} // Tắt trigger mặc định của Ant Design
+        collapsible
+        collapsed={collapsed} // Điều khiển trạng thái thu gọn/mở rộng
+        width={250}
+        style={{ backgroundColor: "#808080" }}
+      >
         <div className="logo p-4 text-center">
-          <img src={logo} alt="logo" className="h-12 mx-auto" />
+          <a href="/">
+            {" "}
+            <img src={logo} alt="logo" className="h-12 mx-auto" />
+          </a>
         </div>
-        {/* Menu sử dụng items thay vì children */}
+
         <Menu
-          theme="light"
+          theme="dark"
           mode="inline"
           defaultSelectedKeys={["1"]}
-          items={menuItems} // Sử dụng items từ mảng menuItems
+          items={menuItems}
+          style={{ backgroundColor: "#808080" }}
         />
       </Sider>
 
       {/* Main content */}
       <Layout className="site-layout">
-        <UserMenu /> {/* Menu người dùng trên header */}
+        <Header
+          style={{ backgroundColor: "#808080" }}
+          className="p-4 flex justify-between items-center"
+        >
+          {collapsed ? (
+            <MenuUnfoldOutlined
+              className="trigger"
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ fontSize: "20px", color: "#fff", cursor: "pointer" }}
+            />
+          ) : (
+            <MenuFoldOutlined
+              className="trigger"
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ fontSize: "20px", color: "#fff", cursor: "pointer" }}
+            />
+          )}
 
+          <div className="ml-auto">
+            <UserMenu /> {/* Đưa UserMenu sang phải */}
+          </div>
+        </Header>
         <Content className="p-8 bg-gray-100">
           {/* Phần nội dung sẽ thay đổi tại đây dựa vào các Route con */}
           <Outlet />
