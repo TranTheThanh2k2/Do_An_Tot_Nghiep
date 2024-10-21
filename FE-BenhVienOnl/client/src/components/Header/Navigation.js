@@ -63,6 +63,12 @@ const Navigation = () => {
           <a href="/adminDashboard">Quản lý Hệ thống</a>
         </Menu.Item>
       )}
+
+      {userInfo && userInfo.role === "doctor" && (
+        <Menu.Item key="6" icon={<UserOutlined />}>
+          <a href="/doctorDashboard">Dành Cho Bác Sĩ</a>
+        </Menu.Item>
+      )}
     </Menu>
   );
 };

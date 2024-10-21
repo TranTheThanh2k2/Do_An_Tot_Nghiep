@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import API from '../api';  // Import API đã cấu hình
+import API from '../api'; 
 
 // Đăng ký người dùng
 export const registerUser = createAsyncThunk(
@@ -67,7 +67,13 @@ export const getAllPatients = createAsyncThunk(
   'user/getAllPatients',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await API.get('/api/users/getAllPatients');
+      const token = localStorage.getItem('token');  // Lấy token từ localStorage
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,  // Gửi token trong header
+        },
+      };
+      const response = await API.get('/api/users/getAllPatients', config);
       return response.data;
     } catch (error) {
       const message = error.response && error.response.data.message
@@ -77,6 +83,8 @@ export const getAllPatients = createAsyncThunk(
     }
   }
 );
+
+
 
 export const getAllDoctors = createAsyncThunk(
   'user/getAllDoctors',
@@ -119,7 +127,7 @@ const userSlice = createSlice({
       state.userInfo = null;
       state.token = null;
       localStorage.removeItem('userInfo');
-      localStorage.removeItem('token');  // Xóa token khỏi localStorage khi đăng xuất
+      localStorage.removeItem('token'); 
     },
     setUser: (state, action) => {
       state.userInfo = action.payload.user;

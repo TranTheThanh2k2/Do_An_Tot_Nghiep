@@ -62,8 +62,8 @@ const ManageDoctor = () => {
     },
     {
       title: 'Chuyên Khoa',
-      dataIndex: 'specialty',
-      key: 'specialty',
+      dataIndex: 'specialization',
+      key: 'specialization',
     },
     {
       title: 'Giới Tính',
@@ -81,6 +81,7 @@ const ManageDoctor = () => {
       dataIndex: 'address',
       key: 'address',
     },
+    
     {
       title: 'Hành Động',
       key: 'action',
@@ -178,9 +179,9 @@ const ManageDoctor = () => {
             rules={[{ required: true, message: 'Hãy chọn giới tính!' }]}
           >
             <Select placeholder="Chọn giới tính">
-              <Select.Option value="male">Nam</Select.Option>
-              <Select.Option value="female">Nữ</Select.Option>
-              <Select.Option value="other">Khác</Select.Option>
+              <Select.Option value="Male">Nam</Select.Option>
+              <Select.Option value="Female">Nữ</Select.Option>
+              <Select.Option value="Other">Khác</Select.Option>
             </Select>
           </Form.Item>
           
@@ -201,7 +202,7 @@ const ManageDoctor = () => {
           </Form.Item>
 
           <Form.Item
-            name="specialty"
+            name="specialization"
             label="Chuyên Khoa"
             rules={[{ required: true, message: 'Hãy nhập chuyên khoa!' }]}
           >
