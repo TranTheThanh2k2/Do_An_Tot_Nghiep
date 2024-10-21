@@ -1,10 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './User/userSlice';
+import { doctorApiSlice } from './Doctor/api'; 
+import userReducer from './User/userSlice';  
 
 const store = configureStore({
   reducer: {
-    user: userReducer,
+    [doctorApiSlice.reducerPath]: doctorApiSlice.reducer,
+    user: userReducer,  
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(doctorApiSlice.middleware), 
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 export default store;

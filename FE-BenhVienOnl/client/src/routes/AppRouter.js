@@ -10,6 +10,7 @@ import AdminDashboard from "../components/Admin/AdminDashboard";
 import Department from "../components/Admin/Department";
 import ManageUser from "../components/Admin/ManageUser";
 import ManageDoctor from "../components/Admin/ManageDoctor";
+import DoctorProfile from "../components/Doctor/DoctorProfile";
 
 const ProtectedRoute = ({ element, redirectTo }) => {
   const { userInfo } = useSelector((state) => state.user);
@@ -21,14 +22,11 @@ function AppRouter() {
   const { userInfo } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const storedUserInfo = localStorage.getItem("userInfo");
-    const storedToken = localStorage.getItem("token"); 
-
-    if (storedUserInfo && storedToken) {
-      dispatch(setUser({
-        user: JSON.parse(storedUserInfo),  // Parse userInfo
-        token: storedToken  // Lấy token từ localStorage
-      }));
+    const userInfo = localStorage.getItem('userInfo');
+    const token = localStorage.getItem('token');
+    
+    if (userInfo && token) {
+      dispatch(setUser({ user: JSON.parse(userInfo), token }));  // Phục hồi user và token từ localStorage
     }
   }, [dispatch]);
   
@@ -52,6 +50,9 @@ function AppRouter() {
           <Route path="user" element={<ManageUser />} />
           <Route path="doctor" element={<ManageDoctor />} />
           <Route path="department" element={<Department />} />
+        </Route>
+        <Route path="/doctorDashboard" element={<DoctorProfile />}>
+          {/* <Route path="user" element={<ManageUser />} /> */}
         </Route>
       </Routes>
     </Router>
