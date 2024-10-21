@@ -1,8 +1,14 @@
 import React from "react";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-
+import { useNavigate } from "react-router-dom";
 const SectionHeader = () => {
+  const navigate = useNavigate(); // Sử dụng hook useNavigate để điều hướng
+
+  const handleCreateAppoiment = () => {
+    navigate("/createAppoiment"); // Điều hướng đến trang tạo cuộc hẹn
+  };
+
   return (
     <div className="section-header px-6 text-center md:text-left">
       <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -31,7 +37,11 @@ const SectionHeader = () => {
           hành chính từ Thứ 2 - Chủ Nhật
         </li>
       </ul>
-      <Button type="primary" className="mt-6 bg-blue-600 text-white">
+      <Button
+        type="primary"
+        className="mt-6 bg-blue-600 text-white"
+        onClick={handleCreateAppoiment}
+      >
         Tư vấn miễn phí
       </Button>
     </div>

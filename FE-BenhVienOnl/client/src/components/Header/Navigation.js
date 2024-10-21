@@ -6,6 +6,7 @@ import {
   MailOutlined,
   SettingOutlined,
   UserOutlined,
+  SnippetsOutlined,
 } from "@ant-design/icons";
 
 const { SubMenu } = Menu;
@@ -26,15 +27,26 @@ const Navigation = () => {
         <a href="/">Trang Chủ</a>
       </Menu.Item>
 
-      {/* Dịch Vụ */}
-      <SubMenu key="services" icon={<SettingOutlined />} title="Dịch Vụ">
+      <SubMenu key="gioi-thieu" icon={<SettingOutlined />} title="Giới Thiệu">
         <Menu.Item key="2-1">
-          <a href="/services/consultation">Tư Vấn</a>
+          <a href="/gioi-thieu">Giới Thiệu</a>
         </Menu.Item>
         <Menu.Item key="2-2">
-          <a href="/services/training">Đào Tạo</a>
+          <a href="/tai-sao-chon-chung-toi">Tại sao chọn chúng tôi</a>
         </Menu.Item>
         <Menu.Item key="2-3">
+          <a href="/introduce/support">Cơ sở vật chất</a>
+        </Menu.Item>
+      </SubMenu>
+
+      <SubMenu key="services" icon={<SnippetsOutlined />} title="Dịch Vụ">
+        <Menu.Item key="3-1">
+          <a href="/services/consultation">Tư Vấn</a>
+        </Menu.Item>
+        <Menu.Item key="3-2">
+          <a href="/services/training">Đào Tạo</a>
+        </Menu.Item>
+        <Menu.Item key="3-3">
           <a href="/services/support">Hỗ Trợ</a>
         </Menu.Item>
       </SubMenu>

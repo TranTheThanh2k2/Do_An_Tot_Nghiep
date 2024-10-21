@@ -47,7 +47,7 @@ const UserMenu = () => {
   return (
     <div className="flex items-center">
       {userInfo && (
-        <span className="mr-2 text-white font-bold">{userInfo.username}</span>
+        <span className="mr-2 text-white font-bold">{userInfo.fullName}</span>
       )}
       <Dropdown
         overlay={userInfo ? loggedInMenu : loggedOutMenu}
