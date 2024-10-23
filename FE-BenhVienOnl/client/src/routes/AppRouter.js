@@ -39,6 +39,7 @@ import Advise from "../components/Services/Advise";
 import Software from "../components/Products/Software";
 import Hardware from "../components/Products/Hardware";
 import Accessory from "../components/Products/Accessory";
+import BookAppointment from "../components/Appointment/BookAppointment";
 
 
 const ProtectedRoute = ({ element, redirectTo }) => {
@@ -88,6 +89,7 @@ function AppRouter() {
 
         {/* Gioi thieu */}
         <Route path="/createAppoiment" element={<CreateAppoiment />} />
+        <Route path="/bookingAppointment/:doctorId" element={<BookAppointment/>} />
         <Route path="/gioi-thieu" element={<Introduce />} />
         <Route path="/tai-sao-chon-chung-toi" element={<ReasonAboutUs />} />
         <Route path="/co-so-vat-chat" element={<Facilities />} />

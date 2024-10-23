@@ -248,7 +248,7 @@ exports.getAllDoctors = async (req, res) => {
     // Trả về danh sách bác sĩ kèm thông tin hợp nhất
     res.status(200).json({
       success: true,
-      doctors: mergedDoctors
+      doctors:  mergedDoctors
     });
   } catch (error) {
     console.error(error.message);
