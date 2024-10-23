@@ -131,37 +131,8 @@ exports.getAllDoctors = async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi máy chủ" });
   }
 };
-// Lấy danh sách tất cả các bác sĩ
-exports.getAllDoctors = async (req, res) => {
-  try {
-    // Lấy danh sách tất cả người dùng có vai trò là "doctor"
-    const users = await User.find({ role: 'doctor' }).select('-password');
-    
-    if (!users.length) {
-      return res.status(404).json({ success: false, message: "Không có bác sĩ nào" });
-    }
 
-    // Lấy danh sách các userId từ danh sách users
-    const userIds = users.map(user => user._id);
 
-    // Lấy thông tin từ model Doctor dựa trên danh sách userId
-    const doctors = await Doctor.find({ user: { $in: userIds } }).populate('user', '-password');
-
-    if (!doctors.length) {
-      return res.status(404).json({ success: false, message: "Không có hồ sơ bác sĩ nào" });
-    }
-
-    res.status(200).json({
-      success: true,
-      doctors
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ success: false, message: "Lỗi máy chủ" });
-  }
-};
-
-// Lấy thông tin chi tiết của một bác sĩ
 exports.getDoctorById = async (req, res) => {
   const { doctorId } = req.params;
 

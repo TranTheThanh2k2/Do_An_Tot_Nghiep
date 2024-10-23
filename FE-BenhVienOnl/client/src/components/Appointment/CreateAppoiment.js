@@ -1,14 +1,23 @@
 import React, { useState } from "react";
-import { Spin, Card, Button } from "antd";
+import { Spin, Card, Button, Modal } from "antd";
 import HeaderComponent from "../Header/Header";
-import { useGetAllDoctorsQuery } from "../../Redux/Doctor/api"; // Import API
-import { useNavigate } from "react-router-dom"; // Import useNavigate để điều hướng
+import {
+  useGetAllDoctorsQuery,
+  useGetDoctorByIdQuery,
+} from "../../Redux/Doctor/api"; // Import cả API slice và API chi tiết
 import doctor1 from "../../img/doctor1.png";
 
 const CreateAppoiment = () => {
   const { data: doctors, isLoading, error } = useGetAllDoctorsQuery(); // Gọi API để lấy danh sách bác sĩ
   const [selectedSpecialty, setSelectedSpecialty] = useState(null); // State để lưu chuyên khoa được chọn
-  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
+  const [selectedDoctorId, setSelectedDoctorId] = useState(null); // State để lưu doctorId được chọn
+  const {
+    data: selectedDoctor,
+    isLoading: isLoadingDoctor,
+    error: doctorError,
+  } = useGetDoctorByIdQuery(selectedDoctorId, {
+    skip: !selectedDoctorId, // Bỏ qua gọi API nếu chưa có doctorId
+  });
 
   if (isLoading) return <Spin size="large" />;
   if (error) return <p>Đã xảy ra lỗi khi lấy danh sách bác sĩ!</p>;
@@ -23,9 +32,14 @@ const CreateAppoiment = () => {
     selectedSpecialty ? doctor.specialty === selectedSpecialty : true
   );
 
-  // Hàm xử lý điều hướng đến trang chi tiết bác sĩ
+  // Hàm xử lý mở modal để xem chi tiết bác sĩ
   const handleViewDetails = (doctorId) => {
-    navigate(`/doctor/${doctorId}`); // Điều hướng đến trang chi tiết bác sĩ với doctorId
+    setSelectedDoctorId(doctorId); // Lưu doctorId để gọi API lấy chi tiết
+  };
+
+  // Hàm đóng Modal và reset lại doctorId
+  const handleCloseModal = () => {
+    setSelectedDoctorId(null); // Reset lại doctorId khi đóng modal
   };
 
   return (
@@ -40,7 +54,7 @@ const CreateAppoiment = () => {
               {specialties.map((specialty, index) => (
                 <li
                   key={index}
-                  onClick={() => setSelectedSpecialty(specialty)}
+                  onClick={() => setSelectedSpecialty(specialty)} // Lọc bác sĩ theo chuyên khoa khi click
                   className={`text-lg cursor-pointer ${
                     selectedSpecialty === specialty
                       ? "text-blue-600 font-bold"
@@ -51,7 +65,7 @@ const CreateAppoiment = () => {
                 </li>
               ))}
               <li
-                onClick={() => setSelectedSpecialty(null)}
+                onClick={() => setSelectedSpecialty(null)} // Hiển thị tất cả bác sĩ khi không chọn chuyên khoa nào
                 className={`text-lg cursor-pointer ${
                   selectedSpecialty === null ? "text-blue-600 font-bold" : ""
                 }`}
@@ -97,7 +111,7 @@ const CreateAppoiment = () => {
                     <div className="mt-4 flex justify-center space-x-4">
                       <Button
                         type="primary"
-                        onClick={() => handleViewDetails(doctor._id)} // Điều hướng tới trang chi tiết bác sĩ
+                        onClick={() => handleViewDetails(doctor._id)} // Gọi hàm để xem chi tiết
                       >
                         Xem Chi Tiết
                       </Button>
@@ -112,6 +126,49 @@ const CreateAppoiment = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Thông Tin Chi Tiết Bác Sĩ"
+        visible={!!selectedDoctorId} // Hiển thị modal khi đã chọn doctorId
+        onCancel={handleCloseModal} // Đóng modal và reset doctorId
+        footer={null} // Không có footer
+      >
+        {isLoadingDoctor ? (
+          <Spin size="large" />
+        ) : doctorError ? (
+          <p>Đã xảy ra lỗi khi lấy thông tin bác sĩ!</p>
+        ) : (
+          selectedDoctor?.doctor && ( // Chỉ render khi `selectedDoctor` có đối tượng `doctor`
+            <div>
+              <h3 className="text-xl font-bold text-blue-600">
+                PGS.TS.BS {selectedDoctor.doctor?.user?.fullName}
+              </h3>
+              <p>
+                <strong>Chuyên khoa:</strong> {selectedDoctor.doctor?.specialty}
+              </p>
+              <p>
+                <strong>Kinh nghiệm:</strong>{" "}
+                {selectedDoctor.doctor?.experience} năm
+              </p>
+              <p>
+                <strong>Bằng cấp:</strong>{" "}
+                {selectedDoctor.doctor?.qualifications?.length > 0
+                  ? selectedDoctor.doctor?.qualifications.join(", ")
+                  : "Không có thông tin"}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedDoctor.doctor?.user?.email}
+              </p>
+              <p>
+                <strong>Số điện thoại:</strong>{" "}
+                {selectedDoctor.doctor?.user?.phone}
+              </p>
+              <p>
+                <strong>Địa chỉ:</strong> {selectedDoctor.doctor?.user?.address}
+              </p>
+            </div>
+          )
+        )}
+      </Modal>
     </div>
   );
 };
