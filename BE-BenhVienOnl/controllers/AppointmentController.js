@@ -36,25 +36,35 @@ exports.createAppointment = async (req, res) => {
     }
   };
   
-// Lấy danh sách lịch hẹn
-exports.getAppointments = async (req, res) => {
-  try {
-    const appointments = await Appointment.find()
-      .populate('doctor', 'fullName') // Chỉ lấy tên bác sĩ
-      .populate('patient', 'fullName'); // Chỉ lấy tên bệnh nhân
 
-    res.status(200).json({
-      success: true,
-      appointments,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Đã xảy ra lỗi khi lấy danh sách lịch hẹn',
-      error: error.message,
-    });
-  }
-};
+// Lấy tất cả lịch hẹn với thông tin chi tiết về bác sĩ và bệnh nhân
+exports.getAppointments = async (req, res) => {
+    try {
+      // Tìm các lịch hẹn của bệnh nhân dựa trên patient id
+      const appointments = await Appointment.find({ patient: req.user._id })
+        .populate({
+          path: 'doctor', // Populate doctor model
+          populate: {
+            path: 'user', // Populate user model bên trong doctor
+            select: 'fullName', // Chọn trường fullName từ user
+          },
+        })
+        .populate('patient', 'fullName'); // Populate thông tin bệnh nhân nếu cần
+  
+      // Trả về dữ liệu appointments
+      res.status(200).json({
+        success: true,
+        appointments,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Đã xảy ra lỗi khi lấy lịch hẹn',
+        error: error.message,
+      });
+    }
+  };
+  
 
 // Cập nhật trạng thái lịch hẹn
 exports.updateAppointmentStatus = async (req, res) => {
