@@ -34,6 +34,7 @@ export const appointmentApiSlice = createApi({
     // API lấy danh sách lịch hẹn
     getAppointments: builder.query({
       query: () => '/appointments',
+      method: 'GET',
       providesTags: ['Appointment'], // Cache kết quả
     }),
 

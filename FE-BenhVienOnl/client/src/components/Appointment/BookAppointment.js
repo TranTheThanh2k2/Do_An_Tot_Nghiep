@@ -5,9 +5,9 @@ import moment from 'moment';
 import { useCreateAppointmentMutation } from '../../Redux/Appointment/api'; // Import hook tạo lịch hẹn từ RTK slice
 
 const BookAppointment = () => {
-  const { doctorId } = useParams(); // Lấy doctorId từ URL params
-  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
-  const [createAppointment, { isLoading }] = useCreateAppointmentMutation(); // Hook để tạo lịch hẹn
+  const { doctorId } = useParams(); 
+  const navigate = useNavigate();
+  const [createAppointment, { isLoading }] = useCreateAppointmentMutation();
 
   const [date, setDate] = useState(null);
   const [startTime, setStartTime] = useState(null);
