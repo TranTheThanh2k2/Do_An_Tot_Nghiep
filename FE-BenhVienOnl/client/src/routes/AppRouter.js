@@ -51,6 +51,8 @@ import NewsEvent from "../components/News/NewsEvent";
 import Appointments from "../components/Login/Appointments";
 
 import UserProfile from "../components/User/UserProfile";
+import DoctorDashboard from "../components/Doctor/DoctorDashboard";
+
 const ProtectedRoute = ({ element, redirectTo }) => {
   const { userInfo } = useSelector((state) => state.user);
   return userInfo ? element : <Navigate to={redirectTo} />;
@@ -88,8 +90,12 @@ function AppRouter() {
               <ProtectedRoute element={<Profile />} redirectTo="/login" />
             }
           />
+          <Route path="appointments" element={<Appointments />} />
         </Route>
 
+        <Route path="/doctor/*" element={<DoctorDashboard />}>
+          <Route path="infoDoctor" element={<DoctorProfile />} />
+        </Route>
         <Route path="/adminDashboard/*" element={<AdminDashboard />}>
           <Route path="user" element={<ManageUser />} />
           <Route path="doctor" element={<ManageDoctor />} />
