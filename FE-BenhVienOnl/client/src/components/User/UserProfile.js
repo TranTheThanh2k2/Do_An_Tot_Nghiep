@@ -19,7 +19,7 @@ const UserProfile = () => {
     { name: "Thông tin cá nhân", path: "/user/profile", icon: <FaUser /> },
     {
       name: "Lịch khám của tôi",
-      path: "/profile/orders",
+      path: "/user/appointments",
       icon: <FaCalendarAlt />,
     },
     {
@@ -64,7 +64,9 @@ const UserProfile = () => {
 // Style CSS
 const styles = {
   container: {
+    marginTop: "20px", // Thêm margin để điều chỉnh khoảng cách từ đầu trang
     display: "flex",
+    alignItems: "flex-start", // Điều chỉnh vị trí của cả sidebar và content để chúng nằm trên cùng một trục dọc
     minHeight: "100vh",
     backgroundColor: "#f9f9f9",
   },
@@ -95,9 +97,6 @@ const styles = {
     fontSize: "16px",
     transition: "color 0.3s",
   },
-  sidebarLinkHover: {
-    color: "#007bff", // Màu xanh cho hover
-  },
   linkText: {
     marginLeft: "10px",
   },
@@ -106,7 +105,7 @@ const styles = {
     padding: "20px",
     backgroundColor: "#fff",
     borderRadius: "8px",
-    margin: "20px",
+    marginLeft: "20px", // Thêm khoảng cách giữa sidebar và content
     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
   },
 };
