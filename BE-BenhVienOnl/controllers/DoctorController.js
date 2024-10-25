@@ -1,23 +1,35 @@
 const Doctor = require("../models/Doctor");
 const User = require("../models/User");
+const mongoose = require('mongoose');
+
+const isValidObjectId = (id) => {
+  return mongoose.Types.ObjectId.isValid(id);
+};
 
 exports.getDoctorProfile = async (req, res) => {
+  const userId = req.user.id; // Lấy userId từ token sau khi xác thực
+
+  if (!isValidObjectId(userId)) {
+      return res.status(400).json({ success: false, message: 'User ID không hợp lệ' });
+  }
+
   try {
-    const doctor = await Doctor.findOne({ user: req.user.id }).populate(
-      "user",
-      "-password"
-    );
-    if (!doctor) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Không tìm thấy hồ sơ bác sĩ" });
-    }
-    res.status(200).json({ success: true, doctor });
+      // Tìm bác sĩ có trường `user` trỏ đến `userId`
+      const doctor = await Doctor.findOne({ user: userId })
+          .populate('user', 'fullName phone email address gender dateOfBirth') // Lấy thông tin từ User
+          .populate('appointments', 'date startTime endTime status'); // Nếu cần lấy thêm thông tin từ Appointment
+
+      if (!doctor) {
+          return res.status(404).json({ success: false, message: 'Không tìm thấy hồ sơ bác sĩ' });
+      }
+
+      return res.status(200).json({ success: true, data: doctor });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ success: false, message: "Lỗi máy chủ", error });
+      console.error('Error fetching doctor profile:', error);
+      return res.status(500).json({ success: false, message: 'Lỗi máy chủ', error: error.message });
   }
 };
+
 
 // Cập nhật thông tin cá nhân của doctor
 exports.updateDoctorProfile = async (req, res) => {
