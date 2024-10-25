@@ -52,6 +52,8 @@ import Appointments from "../components/Login/Appointments";
 
 import UserProfile from "../components/User/UserProfile";
 import DoctorDashboard from "../components/Doctor/DoctorDashboard";
+import ManageAppointment from "../components/Doctor/ManageAppointment";
+import MedicalRecordDoctor from "../components/Doctor/MedicalRecordDoctor";
 
 const ProtectedRoute = ({ element, redirectTo }) => {
   const { userInfo } = useSelector((state) => state.user);
@@ -95,6 +97,8 @@ function AppRouter() {
 
         <Route path="/doctor/*" element={<DoctorDashboard />}>
           <Route path="infoDoctor" element={<DoctorProfile />} />
+          <Route path="manage-patients" element={<ManageAppointment />} />
+          <Route path="patient-records" element={<MedicalRecordDoctor />} />
         </Route>
         <Route path="/adminDashboard/*" element={<AdminDashboard />}>
           <Route path="user" element={<ManageUser />} />

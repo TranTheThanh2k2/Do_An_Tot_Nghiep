@@ -52,6 +52,25 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
+exports.getAllMedicalRecords = async (req, res) => {
+  try {
+    // Tìm tất cả hồ sơ bệnh án và lấy kèm thông tin bệnh nhân, bác sĩ, cuộc hẹn liên quan
+    const medicalRecords = await MedicalRecord.find().populate('patient doctor appointment');
+
+    res.status(200).json({
+      success: true,
+      message: 'Đã lấy tất cả hồ sơ bệnh án',
+      medicalRecords
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Đã xảy ra lỗi khi lấy hồ sơ bệnh án',
+      error: error.message
+    });
+  }
+};
+
 exports.updateMedicalRecord = async (req, res) => {
   const { recordId } = req.params;
   const { diagnosis, treatment, notes } = req.body;
@@ -71,10 +90,10 @@ exports.updateMedicalRecord = async (req, res) => {
     medicalRecord.diagnosis = diagnosis || medicalRecord.diagnosis;
     medicalRecord.treatment = treatment || medicalRecord.treatment;
     medicalRecord.notes = notes || medicalRecord.notes;
-    medicalRecord.updatedAt = Date.now(); // Cập nhật thời gian chỉnh sửa
+    medicalRecord.updatedAt = Date.now();
 
     // Lưu hồ sơ bệnh án đã cập nhật
-    await medicalRecord.save();
+    await medicalRecord.save(); // Đảm bảo đã có await ở đây để thực sự lưu lại thay đổi
 
     res.status(200).json({
       success: true,
@@ -88,7 +107,8 @@ exports.updateMedicalRecord = async (req, res) => {
       error: error.message
     });
   }
-}; 
+};
+
 
 exports.getAppointments = async (req, res) => {
     try {
@@ -186,11 +206,8 @@ exports.cancelAppointment = async (req, res) => {
   const { appointmentId } = req.params;
 
   try {
-    const appointment = await Appointment.findByIdAndUpdate(
-      appointmentId,
-      { status: 'cancelled' },
-      { new: true }
-    );
+    // Tìm và xóa lịch hẹn
+    const appointment = await Appointment.findByIdAndDelete(appointmentId);
 
     if (!appointment) {
       return res.status(404).json({
@@ -199,15 +216,19 @@ exports.cancelAppointment = async (req, res) => {
       });
     }
 
+    // Kiểm tra xem cuộc hẹn có hồ sơ bệnh án không, nếu có thì xóa
+    if (appointment.medicalRecord) {
+      await MedicalRecord.findByIdAndDelete(appointment.medicalRecord);
+    }
+
     res.status(200).json({
       success: true,
-      message: 'Lịch hẹn đã bị hủy',
-      appointment,
+      message: 'Lịch hẹn và hồ sơ bệnh án liên quan (nếu có) đã bị xóa',
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Đã xảy ra lỗi khi hủy lịch hẹn',
+      message: 'Đã xảy ra lỗi khi hủy lịch hẹn và xóa hồ sơ bệnh án',
       error: error.message,
     });
   }
