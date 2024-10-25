@@ -6,16 +6,14 @@ const {
   getDoctorSchedule,
   getAllDoctors,
   getDoctorById,
-  getDoctorByUser,
   getDoctorProfile,
   updateDoctorProfile,
 } = require("../controllers/DoctorController");
 const router = express.Router();
 
-router.get("/doctor/:userId", getDoctorById);
-
 router.get("/doctor/profile", verifyToken, isDoctor, getDoctorProfile);
 
+router.get("/doctor/:userId", getDoctorById);
 router.put(
   "/doctor/profile/update",
   verifyToken,
