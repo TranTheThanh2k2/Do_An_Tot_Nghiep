@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Modal, Input, message, Button, Space, Spin } from 'antd';
-import { useGetAllMedicalRecordsQuery, useUpdateMedicalRecordMutation } from '../../Redux/Doctor/api';
+import React, { useState, useEffect } from "react";
+import { Table, Modal, Input, message, Button, Space, Spin } from "antd";
+import dayjs from "dayjs"; // Import dayjs for date formatting
+import {
+  useGetAllMedicalRecordsQuery,
+  useUpdateMedicalRecordMutation,
+} from "../../Redux/Doctor/api";
 
 const MedicalRecordDoctor = () => {
   const { data, isLoading, error } = useGetAllMedicalRecordsQuery();
@@ -8,7 +12,11 @@ const MedicalRecordDoctor = () => {
   const [appointmentsList, setAppointmentsList] = useState([]); // Quản lý danh sách hồ sơ bệnh án
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [formValues, setFormValues] = useState({ diagnosis: '', treatment: '', notes: '' });
+  const [formValues, setFormValues] = useState({
+    diagnosis: "",
+    treatment: "",
+    notes: "",
+  });
 
   // Xử lý khi có lỗi trong API
   useEffect(() => {
@@ -28,9 +36,9 @@ const MedicalRecordDoctor = () => {
   const handleEditClick = (record) => {
     setSelectedRecord(record._id); // Lưu lại ID hồ sơ bệnh án cần cập nhật
     setFormValues({
-      diagnosis: record.diagnosis || '',
-      treatment: record.treatment || '',
-      notes: record.notes || '',
+      diagnosis: record.diagnosis || "",
+      treatment: record.treatment || "",
+      notes: record.notes || "",
     });
     setEditModalVisible(true); // Mở modal cập nhật
   };
@@ -44,22 +52,26 @@ const MedicalRecordDoctor = () => {
   // Gọi API để cập nhật hồ sơ bệnh án
   const handleUpdate = async () => {
     if (!formValues.diagnosis && !formValues.treatment && !formValues.notes) {
-      message.error('Please fill at least one field.');
+      message.error("Please fill at least one field.");
       return;
     }
 
     try {
       // Truyền đúng dữ liệu cập nhật vào API
       const response = await updateMedicalRecord({
-        recordId: selectedRecord, 
-        updatedRecord: formValues
+        recordId: selectedRecord,
+        updatedRecord: formValues,
       }).unwrap();
-      
-      console.log('Updated medical record:', response); // Kiểm tra dữ liệu trả về từ API
+
+      console.log("Updated medical record:", response); // Kiểm tra dữ liệu trả về từ API
 
       // Cập nhật danh sách với dữ liệu mới được cập nhật
-      setAppointmentsList(prevList =>
-        prevList.map(item => item._id === response.medicalRecord._id ? response.medicalRecord : item)
+      setAppointmentsList((prevList) =>
+        prevList.map((item) =>
+          item._id === response.medicalRecord._id
+            ? response.medicalRecord
+            : item
+        )
       );
 
       message.success("Medical record updated successfully");
@@ -72,41 +84,40 @@ const MedicalRecordDoctor = () => {
   // Cấu trúc bảng
   const columns = [
     {
-      title: 'Patient Name',
-      dataIndex: ['patient', 'fullName'],
-      key: 'patientName',
+      title: "Patient Name",
+      dataIndex: ["patient", "fullName"],
+      key: "patientName",
+    },
+
+    {
+      title: "Date",
+      dataIndex: ["appointment", "date"],
+      key: "date",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"), // Format date as DD/MM/YYYY
     },
     {
-      title: 'Doctor Name',
-      dataIndex: ['doctor', 'fullName'],
-      key: 'doctorName',
+      title: "Diagnosis",
+      dataIndex: "diagnosis",
+      key: "diagnosis",
     },
     {
-      title: 'Date',
-      dataIndex: ['appointment', 'date'],
-      key: 'date',
+      title: "Treatment",
+      dataIndex: "treatment",
+      key: "treatment",
     },
     {
-      title: 'Diagnosis',
-      dataIndex: 'diagnosis',
-      key: 'diagnosis',
+      title: "Notes",
+      dataIndex: "notes",
+      key: "notes",
     },
     {
-      title: 'Treatment',
-      dataIndex: 'treatment',
-      key: 'treatment',
-    },
-    {
-      title: 'Notes',
-      dataIndex: 'notes',
-      key: 'notes',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="primary" onClick={() => handleEditClick(record)}>Edit</Button>
+          <Button type="primary" onClick={() => handleEditClick(record)}>
+            Edit
+          </Button>
         </Space>
       ),
     },

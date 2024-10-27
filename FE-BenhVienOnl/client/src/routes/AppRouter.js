@@ -36,9 +36,6 @@ import Support from "../components/Services/Support";
 import Train from "../components/Services/Train";
 import Advise from "../components/Services/Advise";
 
-import Software from "../components/Products/Software";
-import Hardware from "../components/Products/Hardware";
-import Accessory from "../components/Products/Accessory";
 import BookAppointment from "../components/Appointment/BookAppointment";
 
 import QuestionAnswer from "../components/News/QuestionAnswer";
@@ -151,12 +148,6 @@ function AppRouter() {
         <Route path="/ho-tro" element={<Support />} />
         <Route path="/dao-tao" element={<Train />} />
         <Route path="/tu-van" element={<Advise />} />
-
-        {/* San-pham */}
-
-        <Route path="/phan-mem" element={<Software />} />
-        <Route path="/phan-cung" element={<Hardware />} />
-        <Route path="/phu-kien" element={<Accessory />} />
 
         {/* Tin-tuc */}
         <Route path="/y-hoc-thuong-thuc" element={<CommonMedicine />} />
