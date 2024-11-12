@@ -119,6 +119,75 @@ export const createDoctor = createAsyncThunk(
     }
   }
 );
+
+export const getUpdatedMedicalRecords = createAsyncThunk(
+  "user/getUpdatedMedicalRecords",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API.get("/api/medical-records/updated");
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      return rejectWithValue({ message });
+    }
+  }
+);
+
+// Password reset request
+export const requestPasswordReset = createAsyncThunk(
+  "user/requestPasswordReset",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api/users/requestPasswordReset", {
+        email,
+      });
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      return rejectWithValue({ message });
+    }
+  }
+);
+
+// Confirm OTP
+export const confirmOTP = createAsyncThunk(
+  "user/confirmOTP",
+  async (otpData, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api/users/confirm-otp", otpData); // Adjust endpoint if necessary
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      return rejectWithValue({ message });
+    }
+  }
+);
+// Yêu cầu đặt lại mật khẩu
+export const forgotPassword = createAsyncThunk(
+  "user/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api/users/forgot-password", { email });
+      return response.data; // API trả về message thành công nếu email hợp lệ
+    } catch (error) {
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      return rejectWithValue({ message });
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -126,6 +195,8 @@ const userSlice = createSlice({
     token: null,
     loading: false,
     error: null,
+    successMessage: null,
+    updatedMedicalRecords: [],
   },
   reducers: {
     logout: (state) => {
@@ -140,6 +211,9 @@ const userSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    clearSuccessMessage: (state) => {
+      state.successMessage = null;
     },
   },
   extraReducers: (builder) => {
@@ -242,9 +316,67 @@ const userSlice = createSlice({
       .addCase(getAllDoctors.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload.message;
+      })
+      // Xử lý lấy hồ sơ bệnh án đã cập nhật
+      .addCase(getUpdatedMedicalRecords.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUpdatedMedicalRecords.fulfilled, (state, action) => {
+        state.loading = false;
+        state.updatedMedicalRecords = action.payload.medicalRecords;
+      })
+      .addCase(getUpdatedMedicalRecords.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+      })
+
+      // Handle password reset request
+      .addCase(requestPasswordReset.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(requestPasswordReset.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message; // Set success message if provided by API
+      })
+      .addCase(requestPasswordReset.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+      })
+
+      // Confirm OTP Cases
+      .addCase(confirmOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(confirmOTP.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message; // Assuming API returns success message
+      })
+      .addCase(confirmOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+      })
+      // Xử lý yêu cầu quên mật khẩu
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message; // Đặt thông báo thành công từ API
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message; // Đặt thông báo lỗi nếu có
       });
   },
 });
 
-export const { logout, setUser, clearError } = userSlice.actions;
+export const { logout, setUser, clearError, clearSuccessMessage } =
+  userSlice.actions;
 export default userSlice.reducer;

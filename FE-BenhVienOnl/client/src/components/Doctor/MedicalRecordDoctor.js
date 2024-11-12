@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Table, Modal, Input, message, Button, Space, Spin } from "antd";
 import dayjs from "dayjs"; // Import dayjs for date formatting
 import {
-  useGetAllMedicalRecordsQuery,
+  useGetDoctorMedicalRecordsQuery,
   useUpdateMedicalRecordMutation,
 } from "../../Redux/Doctor/api";
 
 const MedicalRecordDoctor = () => {
-  const { data, isLoading, error } = useGetAllMedicalRecordsQuery();
+  const { data, isLoading, error } = useGetDoctorMedicalRecordsQuery();
   const [updateMedicalRecord] = useUpdateMedicalRecordMutation();
   const [appointmentsList, setAppointmentsList] = useState([]); // Quản lý danh sách hồ sơ bệnh án
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -52,7 +52,7 @@ const MedicalRecordDoctor = () => {
   // Gọi API để cập nhật hồ sơ bệnh án
   const handleUpdate = async () => {
     if (!formValues.diagnosis && !formValues.treatment && !formValues.notes) {
-      message.error("Please fill at least one field.");
+      message.error("Vui lòng điền ít nhất một trường.");
       return;
     }
 
@@ -60,7 +60,7 @@ const MedicalRecordDoctor = () => {
       // Truyền đúng dữ liệu cập nhật vào API
       const response = await updateMedicalRecord({
         recordId: selectedRecord,
-        updatedRecord: formValues,
+        ...formValues, // Truyền toàn bộ `formValues` vào `body`
       }).unwrap();
 
       console.log("Updated medical record:", response); // Kiểm tra dữ liệu trả về từ API
@@ -74,10 +74,10 @@ const MedicalRecordDoctor = () => {
         )
       );
 
-      message.success("Medical record updated successfully");
+      message.success("Cập nhật hồ sơ bệnh án thành công");
       setEditModalVisible(false); // Đóng modal
     } catch (error) {
-      message.error("Failed to update medical record");
+      message.error("Cập nhật hồ sơ bệnh án thất bại");
     }
   };
 
@@ -88,12 +88,33 @@ const MedicalRecordDoctor = () => {
       dataIndex: ["patient", "fullName"],
       key: "patientName",
     },
-
     {
-      title: "Date",
+      title: "Date of Birth",
+      dataIndex: ["patient", "dateOfBirth"],
+      key: "dateOfBirth",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"), // Format date of birth as DD/MM/YYYY
+    },
+    {
+      title: "Gender",
+      dataIndex: ["patient", "gender"],
+      key: "gender",
+    },
+    {
+      title: "Appointment Date",
       dataIndex: ["appointment", "date"],
-      key: "date",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"), // Format date as DD/MM/YYYY
+      key: "appointmentDate",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"), // Format appointment date as DD/MM/YYYY
+    },
+    {
+      title: "Shift",
+      dataIndex: ["appointment", "shift"],
+      key: "shift",
+      render: (shift) => {
+        if (shift === "morning") return "Buổi sáng";
+        if (shift === "afternoon") return "Buổi trưa";
+        if (shift === "evening") return "Buổi tối";
+        return shift;
+      },
     },
     {
       title: "Diagnosis",

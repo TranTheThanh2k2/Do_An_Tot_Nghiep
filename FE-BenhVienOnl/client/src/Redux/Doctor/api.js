@@ -45,14 +45,14 @@ export const doctorApiSlice = createApi({
     // Tạo lịch hẹn
     createAppointment: builder.mutation({
       query: (newAppointment) => ({
-        url: "/appointments",
+        url: "/api/appointments",
         method: "POST",
         body: newAppointment,
       }),
     }),
     // Lấy danh sách lịch hẹn
     getAppointments: builder.query({
-      query: () => "/api/appointments",
+      query: () => "/api/appointments/me",
     }),
     // Cập nhật trạng thái lịch hẹn (chỉ bác sĩ)
     updateAppointmentStatus: builder.mutation({
@@ -62,18 +62,21 @@ export const doctorApiSlice = createApi({
         body: { status },
       }),
     }),
-    // Lấy danh sách lịch hẹn của bác sĩ (chỉ bác sĩ) 
+    // Lấy danh sách lịch hẹn của bác sĩ (chỉ bác sĩ)
     getDoctorAppointments: builder.query({
       query: () => "/api/appointments/doctor",
     }),
     getAllMedicalRecords: builder.query({
-      query: () => 'api/medical-records',
+      query: () => "api/medical-records/me",
     }),
     // Hủy lịch hẹn
     cancelAppointment: builder.mutation({
-      query: (appointmentId) => ({
-        url: `api/appointments/${appointmentId}/cancel`,
-        method: "PUT",
+      query: ({ appointmentId }) => ({
+        url: `/api/appointments/${appointmentId}/cancel`,
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }),
     }),
 
@@ -86,11 +89,37 @@ export const doctorApiSlice = createApi({
     }),
     // Cập nhật hồ sơ y tế (chỉ bác sĩ)
     updateMedicalRecord: builder.mutation({
-      query: ({ recordId, updatedRecord }) => ({
-        url: `api/medical-records/${recordId}`,
+      query: ({ recordId, ...body }) => ({
+        url: `/api/medical-records/${recordId}`,
         method: "PUT",
-        body: updatedRecord,
+        body,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }),
+    }),
+    // Tạo lịch làm việc của bác sĩ
+    createSchedule: builder.mutation({
+      query: (schedule) => ({
+        url: "/api/doctor/schedule",
+        method: "POST",
+        body: schedule,
+      }),
+    }),
+    // Lấy lịch làm việc của bác sĩ
+    getDoctorSchedule: builder.query({
+      query: () => "/api/doctor/schedule/me",
+    }),
+    // Cập nhật lịch làm việc của bác sĩ
+    updateDoctorSchedule: builder.mutation({
+      query: ({ scheduleId, updatedSchedule }) => ({
+        url: "/api/doctor/scheduleUpdate",
+        method: "PUT",
+        body: { scheduleId, ...updatedSchedule },
+      }),
+    }),
+    getDoctorMedicalRecords: builder.query({
+      query: () => "/api/medical-records/doctor",
     }),
   }),
 });
@@ -109,6 +138,10 @@ export const {
   useRescheduleAppointmentMutation,
   useUpdateMedicalRecordMutation,
   useGetAllMedicalRecordsQuery,
+  useCreateScheduleMutation,
+  useGetDoctorScheduleQuery,
+  useUpdateDoctorScheduleMutation,
+  useGetDoctorMedicalRecordsQuery,
 } = doctorApiSlice;
 
 export default doctorApiSlice;
