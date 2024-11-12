@@ -1,37 +1,154 @@
 const Doctor = require("../models/Doctor");
 const User = require("../models/User");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const isValidObjectId = (id) => {
   return mongoose.Types.ObjectId.isValid(id);
 };
 
-exports.getDoctorProfile = async (req, res) => {
-  const userId = req.user.id; // Lấy userId từ token sau khi xác thực
-
-  if (!isValidObjectId(userId)) {
-      return res.status(400).json({ success: false, message: 'User ID không hợp lệ' });
-  }
+exports.updateDoctorSchedule = async (req, res) => {
+  const doctorId = req.user._id;
+  const { scheduleId, date, shift, isAvailable } = req.body;
 
   try {
-      // Tìm bác sĩ có trường `user` trỏ đến `userId`
-      const doctor = await Doctor.findOne({ user: userId })
-          .populate('user', 'fullName phone email address gender dateOfBirth') // Lấy thông tin từ User
-          .populate('appointments', 'date startTime endTime status'); // Nếu cần lấy thêm thông tin từ Appointment
+    const doctor = await Doctor.findOne({ user: doctorId });
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Bác sĩ không tồn tại" });
+    }
 
-      if (!doctor) {
-          return res.status(404).json({ success: false, message: 'Không tìm thấy hồ sơ bác sĩ' });
-      }
+    const schedule = doctor.schedule.id(scheduleId);
+    if (!schedule) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy lịch làm việc" });
+    }
 
-      return res.status(200).json({ success: true, data: doctor });
+    schedule.date = date || schedule.date;
+    schedule.shift = shift || schedule.shift;
+    schedule.isAvailable =
+      isAvailable !== undefined ? isAvailable : schedule.isAvailable;
+
+    // Đánh dấu rằng schedule đã được thay đổi
+    doctor.markModified("schedule");
+
+    await doctor.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Lịch làm việc đã được cập nhật thành công",
+      schedule: doctor.schedule,
+    });
   } catch (error) {
-      console.error('Error fetching doctor profile:', error);
-      return res.status(500).json({ success: false, message: 'Lỗi máy chủ', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi khi cập nhật lịch làm việc",
+      error: error.message,
+    });
   }
 };
 
+exports.getDoctorSchedule = async (req, res) => {
+  const doctorId = req.user._id; // Giả sử ID của bác sĩ được lưu trong req.user
 
-// Cập nhật thông tin cá nhân của doctor
+  try {
+    // Tìm bác sĩ dựa trên ID và lấy lịch làm việc
+    const doctor = await Doctor.findOne({ user: doctorId }).select("schedule");
+
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Bác sĩ không tồn tại" });
+    }
+
+    res.status(200).json({
+      success: true,
+      schedule: doctor.schedule,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi khi lấy lịch làm việc",
+      error: error.message,
+    });
+  }
+};
+
+exports.createSchedule = async (req, res) => {
+  const { date, shift } = req.body;
+  const doctorId = req.user._id;
+
+  try {
+    const doctor = await Doctor.findOne({ user: doctorId });
+
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Bác sĩ không tồn tại" });
+    }
+
+    // Kiểm tra trùng lặp theo ngày và ca làm việc
+    const isConflict = doctor.schedule.some(
+      (slot) =>
+        slot.date.toISOString() === new Date(date).toISOString() &&
+        slot.shift === shift
+    );
+
+    if (isConflict) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Ca làm việc này đã tồn tại" });
+    }
+
+    doctor.schedule.push({ date, shift, isAvailable: true });
+    await doctor.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Lịch làm việc đã được thêm thành công",
+      schedule: doctor.schedule,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi khi tạo lịch làm việc",
+      error: error.message,
+    });
+  }
+};
+
+exports.getDoctorProfile = async (req, res) => {
+  const userId = req.user.id;
+
+  if (!isValidObjectId(userId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "User ID không hợp lệ" });
+  }
+
+  try {
+    // Tìm bác sĩ có trường `user` trỏ đến `userId`
+    const doctor = await Doctor.findOne({ user: userId })
+      .populate("user", "fullName phone email address gender dateOfBirth") // Lấy thông tin từ User
+      .populate("appointments", "date startTime endTime status"); // Nếu cần lấy thêm thông tin từ Appointment
+
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy hồ sơ bác sĩ" });
+    }
+
+    return res.status(200).json({ success: true, data: doctor });
+  } catch (error) {
+    console.error("Error fetching doctor profile:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Lỗi máy chủ", error: error.message });
+  }
+};
+
+const { uploadImage } = require("../config/cloudinaryConfig");
 exports.updateDoctorProfile = async (req, res) => {
   const { specialty, experience, qualifications } = req.body;
 
@@ -49,6 +166,19 @@ exports.updateDoctorProfile = async (req, res) => {
     doctor.experience = experience || doctor.experience;
     doctor.qualifications = qualifications || doctor.qualifications;
 
+    // Kiểm tra và upload ảnh mới nếu có
+    if (req.files && req.files.length > 0) {
+      const imageUrls = [];
+
+      for (const file of req.files) {
+        const imageUrl = await uploadImage(file.path); // Upload ảnh và lấy URL
+        imageUrls.push(imageUrl);
+      }
+
+      // Giới hạn tối đa 5 ảnh và cập nhật vào doctor.images
+      doctor.images = [...doctor.images, ...imageUrls].slice(0, 5);
+    }
+
     await doctor.save();
 
     res.status(200).json({
@@ -59,73 +189,6 @@ exports.updateDoctorProfile = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ success: false, message: "Lỗi máy chủ", error });
-  }
-};
-
-// Thêm lịch làm việc cho bác sĩ
-exports.createDoctorSchedule = async (req, res) => {
-  const { schedule } = req.body;
-
-  try {
-    const doctor = await Doctor.findOne({ user: req.user.id });
-    if (!doctor) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Bác sĩ không tồn tại" });
-    }
-    const conflictingSchedule = doctor.schedule.some((existingSchedule) => {
-      return schedule.some((newSchedule) => {
-        return (
-          existingSchedule.date === newSchedule.date &&
-          ((newSchedule.startTime >= existingSchedule.startTime &&
-            newSchedule.startTime <= existingSchedule.endTime) ||
-            (newSchedule.endTime >= existingSchedule.startTime &&
-              newSchedule.endTime <= existingSchedule.endTime))
-        );
-      });
-    });
-
-    if (conflictingSchedule) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Lịch làm việc bị trùng lặp" });
-    }
-
-    // Thêm lịch mới vào
-    doctor.schedule.push(...schedule);
-    await doctor.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Lịch làm việc đã được thêm thành công",
-      schedule: doctor.schedule,
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ success: false, message: "Lỗi máy chủ" });
-  }
-};
-
-// Lấy lịch làm việc của bác sĩ
-exports.getDoctorSchedule = async (req, res) => {
-  try {
-    const doctor = await Doctor.findOne({ user: req.user.id }).populate(
-      "user",
-      "-password"
-    );
-    if (!doctor) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Bác sĩ không tồn tại" });
-    }
-
-    res.status(200).json({
-      success: true,
-      schedule: doctor.schedule,
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ success: false, message: "Lỗi máy chủ" });
   }
 };
 

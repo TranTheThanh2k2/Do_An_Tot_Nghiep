@@ -3,7 +3,13 @@ import { Link, Outlet } from "react-router-dom";
 import HeaderComponent from "../Header/Header";
 import FooterComponent from "../component/Footer";
 // Import icon từ react-icons
-import { FaUserMd, FaCalendarAlt, FaFileMedical } from "react-icons/fa";
+import {
+  FaUserMd,
+  FaCalendarAlt,
+  FaFileMedical,
+  FaClock,
+  FaPrescriptionBottleAlt,
+} from "react-icons/fa";
 
 const DoctorDashboard = () => {
   const menuItems = [
@@ -11,6 +17,11 @@ const DoctorDashboard = () => {
       name: "Thông tin bác sĩ",
       path: "/doctor/infoDoctor",
       icon: <FaUserMd />,
+    },
+    {
+      name: "Quản lý lịch làm việc",
+      path: "/doctor/manage-schedule",
+      icon: <FaClock />,
     },
     {
       name: "Quản lý lịch hẹn",
@@ -21,6 +32,11 @@ const DoctorDashboard = () => {
       name: "Hồ sơ bệnh nhân",
       path: "/doctor/patient-records",
       icon: <FaFileMedical />,
+    },
+    {
+      name: "Kê Toa Thuốc Onl",
+      path: "/doctor/doctor-medicines",
+      icon: <FaPrescriptionBottleAlt />,
     },
   ];
 
