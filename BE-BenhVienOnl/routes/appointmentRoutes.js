@@ -11,6 +11,8 @@ const {
   getAllMedicalRecords,
   getUpdatedMedicalRecords,
   getDoctorMedicalRecords,
+  handlePaymentCancellation,
+  handlePaymentSuccess
 } = require("../controllers/AppointmentController");
 const { verifyToken, isDoctor } = require("../Middleware/Middleware");
 
@@ -23,6 +25,8 @@ router.put(
   isDoctor,
   updateMedicalRecord
 );
+router.get("/payment-success", handlePaymentSuccess);
+router.get("/payment-cancel", handlePaymentCancellation);
 
 router.get("/medical-records/me", verifyToken, isDoctor, getAllMedicalRecords);
 router.get(
